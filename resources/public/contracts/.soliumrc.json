@@ -14,6 +14,8 @@
     "visibility-first": "off",
     "no-empty-blocks": "off",
     "emit": "off",
+    "security/no-inline-assembly": "off",
+    "operator-whitespace": "off",
     "quotes": [
       "error",
       "double"

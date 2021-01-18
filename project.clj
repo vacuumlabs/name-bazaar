@@ -17,8 +17,7 @@
                  [day8.re-frame/forward-events-fx "0.0.5"]
                  [honeysql "0.9.3"]
                  [medley "1.0.0"]
-                 ;; [org.clojure/clojurescript "1.9.946"]
-                 [org.clojure/clojurescript "1.10.439"]
+                 [org.clojure/clojurescript "1.10.773"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [print-foo-cljs "2.0.3"]
                  [re-frame "0.10.6"]
@@ -117,7 +116,7 @@
             "build-prod-ui" ["do" ["clean"] ["cljsbuild" "once" "min"]]
             "build-prod" ["pdo" ["build-prod-server"] ["build-prod-ui"] ["build-css"]]}
 
-  :profiles {:dev {:dependencies [[org.clojure/clojure "1.9.0"]
+  :profiles {:dev {:dependencies [[org.clojure/clojure "1.10.1"]
                                   [binaryage/devtools "0.9.10"]
                                   [cider/piggieback "0.4.0"]
                                   [figwheel-sidecar "0.5.18"]

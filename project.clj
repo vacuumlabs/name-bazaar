@@ -3,8 +3,8 @@
   :url "https://github.com/district0x/name-bazaar"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[cljs-http "0.1.43"]
-                 [cljs-web3 "0.19.0-0-8"]
+  :dependencies [[cljs-http "0.1.46"]
+                 [cljs-web3 "0.19.0-0-11"]
                  [cljsjs/filesaverjs "1.3.3-0"]
                  [cljsjs/prop-types "15.6.0-0"]
                  [cljsjs/react "16.4.1-0"]
@@ -26,19 +26,28 @@
                  [reagent "0.8.1"]
                  [soda-ash "0.76.0"]
 
-                 [district0x/bignumber "1.0.1"]
-                 [district0x/district-encryption "1.0.0"]
-                 [district0x/district-sendgrid "1.0.0"]
+                 [district0x/bignumber "1.0.3"]
+                 [district0x/district-encryption "1.0.1"]
+                 [district0x/district-sendgrid "1.0.1"]
                  [district0x/district-server-config "1.0.1"]
-                 [district0x/district-server-db "1.0.1"]
+                 [district0x/district-server-db "1.0.4"]
+                 ;; TODO(not important): Update to latest version.
+                 ;; Version 1.0.2 splits the package into two separate modules.
                  [district0x/district-server-endpoints "1.0.1"]
-                 [district0x/district-server-logging "1.0.4"]
-                 [district0x/district-server-smart-contracts "1.0.1"]
+                 [district0x/district-server-logging "1.0.6"]
+                 ;; Version 1.0.11, containing changes from the following PR
+                 ;; https://github.com/district0x/district-server-smart-contracts/pull/9
+                 ;; removes the :auto-mining? option in :smart-contracts, which is used
+                 ;; in dev mode and tests. Later version removes deploy-smart-contract!
+                 ;; function in favor of truffle migrations.
+                 ;; TODO(not important): update to latest version
+                 [district0x/district-server-smart-contracts "1.0.10"]
+                 ;; TODO: update to newer version. Updating to 1.1.0 breaks the tests
                  [district0x/district-server-web3 "1.0.1"]
-                 [district0x/district-server-web3-watcher "1.0.2"]
-                 [district0x/district-ui-logging "1.0.4"]
+                 [district0x/district-server-web3-watcher "1.0.3"]
+                 [district0x/district-ui-logging "1.1.0"]
                  [district0x/district-ui-mobile "1.0.0"]
-                 [district0x/error-handling "1.0.1-SNAPSHOT"]
+                 [district0x/error-handling "1.0.4"]
 
                  ;; d0xINFRA temporary here
                  [akiroz.re-frame/storage "0.1.2"]
@@ -59,7 +68,7 @@
                  [kibu/pushy "0.3.8"]
                  [madvas.re-frame/google-analytics-fx "0.1.0"]
                  [madvas/cemerick-url-patched "0.1.2-SNAPSHOT"] ;; Temporary until cemerick merges PR26
-                 [madvas.re-frame/web3-fx "0.2.1"]]
+                 [madvas.re-frame/web3-fx "0.2.3"]]
 
   :exclusions [[com.taoensso/encore]
                [org.clojure/clojure]
@@ -73,12 +82,13 @@
             [lein-npm "0.6.2"]
             [lein-pdo "0.1.1"]]
 
-  :npm {:dependencies [["@ensdomains/buffer" "0.0.10"]
-                       ["@ensdomains/dnssec-oracle" "0.1.2"]
-                       ["@ensdomains/ens" "0.4.5"]
-                       ["@ensdomains/resolver" "0.2.4"]
-                       ["@sentry/node" "4.2.1"]
+  :npm {:dependencies [[@ensdomains/buffer "0.0.10"]
+                       [@ensdomains/dnssec-oracle "0.1.2"]
+                       [@ensdomains/ens "0.4.5"]
+                       [@ensdomains/resolver "0.2.4"]
+                       [@sentry/node "4.2.1"]
                        [chalk "2.3.0"]
+                       [deasync "0.1.11"]
                        [eth-ens-namehash "2.0.0"]
                        [semantic-ui "2.4.1"]
                        [source-map-support "0.4.0"]

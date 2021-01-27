@@ -2,9 +2,9 @@ pragma solidity ^0.5.17;
 
 import "@ensdomains/ens/contracts/ENSRegistry.sol";
 import "@ensdomains/ens/contracts/HashRegistrar.sol";
-import "OfferingRegistry.sol";
-import "OfferingRequestsAbstract.sol";
-import "strings.sol";
+import "./OfferingRegistry.sol";
+import "./OfferingRequestsAbstract.sol";
+import "./strings.sol";
 
 /**
  * @title OfferingFactory

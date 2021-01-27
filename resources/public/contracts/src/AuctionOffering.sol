@@ -7,8 +7,8 @@ pragma solidity ^0.5.17;
  * This way code logic for this offering won't be duplicated on blockchain.
  */
 
-import "SafeMath.sol";
-import "Offering.sol";
+import "./SafeMath.sol";
+import "./Offering.sol";
 
 contract AuctionOffering is Offering {
     using SafeMath for uint;
@@ -56,6 +56,12 @@ contract AuctionOffering is Offering {
     modifier onlyBeforeEndTime() {
         require(now < auctionOffering.endTime);
         _;
+    }
+
+    // This function is here only for truffle debugging/testing prototype
+    // TODO: remove
+    function addEndTime(uint64 _endTime) public {
+        auctionOffering.endTime += _endTime;
     }
 
     /**

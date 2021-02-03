@@ -1,8 +1,6 @@
 pragma solidity ^0.5.17;
 
-
-import "UsedByFactories.sol";
-
+import "./UsedByFactories.sol";
 
 /**
  * @title OfferingRegistry

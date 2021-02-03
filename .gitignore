@@ -19,6 +19,7 @@ node_modules/
 /resources/public/js/compiled/
 /figwheel_server.log
 /resources/public/contracts/build/
+/resources/public/contracts/cache/
 /dev-backend/
 /dev-server/
 /server/

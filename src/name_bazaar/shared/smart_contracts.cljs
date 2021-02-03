@@ -34,3 +34,4 @@
  :auction-offering
  {:name "AuctionOffering",
   :address "0xb02c63815fd3a90def33a4611070b2dd417a04f8"}})
+

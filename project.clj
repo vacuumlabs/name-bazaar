@@ -108,17 +108,24 @@
                        ;; TODO: remove, they should be installed automatically
                        [eccjs "0.3.1"]
                        [eth-ens-namehash "2.0.0"]
+                       [hardhat "2.0.8"]
                        [openzeppelin-solidity "2.3.0"]
                        [semantic-ui "2.4.1"]
                        [source-map-support "0.4.0"]
                        [ws "2.0.1"]
                        [xhr2 "0.1.4"]]
-        :devDependencies [[ethlint "1.2.5"]
+        :devDependencies [[chai "4.2.0"]
+                          [chai-string "1.5.0"]
+                          [ethereum-waffle "3.2.2"]
+                          [ethers "5.0.28"]
+                          [ethlint "1.2.5"]
                           [karma "1.5.0"]
                           [karma-chrome-launcher "2.0.0"]
                           [karma-cli "1.0.1"]
                           [karma-cljs-test "0.1.0"]
-                          [karma-safari-launcher "1.0.0"]]
+                          [karma-safari-launcher "1.0.0"]
+                          ["@nomiclabs/hardhat-ethers" "2.0.1"]
+                          ["@nomiclabs/hardhat-waffle" "2.0.1"]]
         :package {:scripts {:ethlint "./node_modules/ethlint/bin/solium.js --dir resources/public/contracts/src/"
                             :ethlint-fix"./node_modules/ethlint/bin/solium.js --dir resources/public/contracts/src/ --fix"
                             }}}

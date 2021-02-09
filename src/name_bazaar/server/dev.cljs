@@ -10,7 +10,7 @@
     [cljs.spec.alpha :as s]
     [district.server.config :refer [config]]
     [district.server.db :refer [db]]
-    [district.server.endpoints :as endpoints]
+    [district.server.endpoints]
     [district.server.endpoints.middleware.logging :refer [logging-middlewares]]
     [district.server.logging]
     [district.server.smart-contracts]

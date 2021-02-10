@@ -130,7 +130,7 @@
     (-> (zipmap registrar-registration-props registration)
         (update :name-bazaar-registrar.registration/available boolean)
         (update :name-bazaar-registrar.registration/expiration-date (if parse-dates? d0x-shared-utils/evm-time->date-time bn/number))
-        (update :name-bazaar-registrar.registration/owner #(if (= % "0x") zero-address %)))))
+        (update :name-bazaar-registrar.registration/owner identity))))
 
 (defn calculate-min-bid
   ([price min-bid-increase bid-count]

@@ -1,37 +1,20 @@
 (ns name-bazaar.server.dev
   (:require
-    [cljs-http.client :as http]
     [cljs-time.coerce :refer [to-epoch]]
-    [cljs-time.core :as t]
-    [cljs-web3.core :as web3]
-    [cljs-web3.eth :as web3-eth]
     [cljs.nodejs :as nodejs]
     [cljs.pprint :as pprint]
-    [cljs.spec.alpha :as s]
+    [cljs-web3.core :as web3]
     [district.server.config :refer [config]]
     [district.server.db :refer [db]]
-    [district.server.endpoints :as endpoints]
+    [district.server.endpoints]
     [district.server.endpoints.middleware.logging :refer [logging-middlewares]]
     [district.server.logging]
     [district.server.smart-contracts]
     [district.server.web3 :refer [web3]]
     [district.server.web3-watcher]
     [goog.date.Date]
-    [honeysql.core :as sql]
-    [honeysql.format :as sql-format]
-    [honeysql.helpers :as sql-helpers]
     [mount.core :as mount]
     [name-bazaar.server.api]
-    [name-bazaar.server.contracts-api.auction-offering :as auction-offering]
-    [name-bazaar.server.contracts-api.auction-offering-factory :as auction-offering-factory]
-    [name-bazaar.server.contracts-api.buy-now-offering :as buy-now-offering]
-    [name-bazaar.server.contracts-api.buy-now-offering-factory :as buy-now-offering-factory]
-    [name-bazaar.server.contracts-api.ens :as ens]
-    [name-bazaar.server.contracts-api.offering :as offering]
-    [name-bazaar.server.contracts-api.offering-registry :as offering-registry]
-    [name-bazaar.server.contracts-api.offering-requests :as offering-requests]
-    [name-bazaar.server.contracts-api.registrar :as registrar]
-    [name-bazaar.server.contracts-api.used-by-factories :as used-by-factories]
     [name-bazaar.server.db]
     [name-bazaar.server.deployer]
     [name-bazaar.server.emailer]
@@ -45,6 +28,15 @@
 
 (def namehash (aget (nodejs/require "eth-ens-namehash") "hash"))
 (def sha3 (comp (partial str "0x") (aget (nodejs/require "js-sha3") "keccak_256")))
+
+(defn redeploy []
+  (mount/stop)
+  (-> (mount/with-args
+        (merge
+          (mount/args)
+          {:deployer {:write? true}}))
+      (mount/start)
+      pprint/pprint))
 
 (defn on-jsload []
   (mount/stop #'district.server.endpoints/endpoints)
@@ -63,16 +55,6 @@
                                        :gas-price (web3/to-wei 4 :gwei)}})
                          #'district.server.web3/web3
                          #'district.server.smart-contracts/smart-contracts))
-
-(defn redeploy []
-  (mount/stop)
-  (-> (mount/with-args
-        (merge
-          (mount/args)
-          {:deployer {:write? true}}))
-      (mount/start)
-      pprint/pprint))
-
 
 (defn generate-data
   "Generate dev data"

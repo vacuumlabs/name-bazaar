@@ -16,7 +16,7 @@ describe("Name bazaar registrar", function () {
     ens = await ENS.deploy();
 
     NameBazaarRegistrar = await ethers.getContractFactory("NameBazaarRegistrar");
-    registrar = await NameBazaarRegistrar.deploy(ens.address, ethRoot, 10000000);
+    registrar = await NameBazaarRegistrar.deploy(ens.address, ethRoot);
 
     [owner, addr1] = await ethers.getSigners(); // we don't need all signer addresses
 
@@ -24,7 +24,6 @@ describe("Name bazaar registrar", function () {
   });
 
   it('successfully deploys', async () => {
-    expect(await registrar.rootNode()).to.equal(ethRoot);
     expect(await ens.owner(ethRoot)).to.equal(registrar.address);
   })
 
@@ -73,6 +72,26 @@ describe("Name bazaar registrar", function () {
 
       expect(await ens.owner(subdomainRoot)).to.equal(zeroAddress);
       expect(await ens.owner(root)).to.equal(owner.address);
+    })
+
+    describe('domain info', () => {
+      it('can get info about non existing domain', async () => {
+        const label = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('domain'));
+        const info = await registrar.domainInfo(label)
+        expect(info[0]).to.equal(true)
+        expect(info[1].toNumber()).to.equal(0)
+        expect(info[2]).to.equal(zeroAddress)
+      })
+
+      it('can get info about existing domain', async () => {
+        const label = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('domain'));
+        await registrar.register(label)
+
+        const info = await registrar.domainInfo(label)
+        expect(info[0]).to.equal(false)
+        expect(info[1].toNumber()).to.be.gte(0)
+        expect(info[2]).to.equal(owner.address)
+      })
     })
   })
 });

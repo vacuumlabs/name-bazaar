@@ -1,3 +1,6 @@
+;; TODO registrations support over new eth registrar not yet available
+;; TODO all of this is deprecated as it rests on the old auction-based eth registrar
+
 (ns name-bazaar.ui.pages.register-name-page
   (:require [cljs-time.core :as cljs-time]
             [clojure.string :as string]
@@ -15,7 +18,7 @@
             [name-bazaar.ui.components.ens-record.ens-name-input :as ens-name-input]
             [name-bazaar.ui.components.ens-record.etherscan-link :as ens-record-etherscan-link]
             [name-bazaar.ui.components.ens-record.general-info :as ens-record-general-info]
-            [name-bazaar.ui.components.registrar-entry.general-info :as registrar-entry-general-info]
+            [name-bazaar.ui.components.registrar-registration.general-info :as registrar-registration-general-info]
             [name-bazaar.ui.constants :as constants]
             [name-bazaar.ui.utils :as nb-ui-utils]
             [re-frame.core :as re-frame]
@@ -322,8 +325,9 @@
                    [:div.grid.midsect.dif-owner
                     [:div.description
                      [ens-record-general-info/ens-record-general-info {:ens.record/name (str @label constants/registrar-root)}]
-                     [registrar-entry-general-info/registrar-entry-general-info {:ens.record/name @label
-                                                                                 :name-bazaar-registrar.entry/state-text (get nb-ui-utils/registrar-entry-state->text registrar-state)}]]
+                     [registrar-registration-general-info/registrar-registration-general-info
+                       {:ens.record/name @label
+                        :name-bazaar-registrar.entry/state-text (get nb-ui-utils/registrar-entry-state->text registrar-state)}]]
                     [:div.clock
                      [auction-clock label-hash state]
                      [auction-calendar label-hash state]]]

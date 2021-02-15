@@ -157,7 +157,7 @@
                    :form-data form-data
                    :contract-address (:offering/address form-data)
                    :result-href (path-for :route.offerings/detail form-data)
-                   :tx-opts {:gas 120000
+                   :tx-opts {:gas 300000
                              :gas-price default-gas-price
                              :value (:offering/price form-data)}
                    :form-id (select-keys form-data [:offering/address])
@@ -410,7 +410,7 @@
                             (filter :offering/top-level-name?)
                             (map :offering/label-hash))]
       {:dispatch-n [[:ens.records/load nodes]
-                    [:name-bazaar-registrar.entries/load label-hashes]]})))
+                    [:name-bazaar-registrar.registrations/load label-hashes]]})))
 
 (reg-event-fx
   :offerings/watch
@@ -652,16 +652,16 @@
   :offerings/transfer-ownership
   interceptors
   (fn [{:keys [:db]} [name owner]]
-    {:dispatch
-     (if (top-level-name? name)
-       [:name-bazaar-registrar/transfer {:ens.record/label (name-label name)
-                                         :ens.record/owner owner}
-        {:result-href (path-for :route.offerings/detail {:offering/address owner})
-         :on-tx-receipt-n [[:offerings.ownership/load [owner]]
-                           [:district0x.snackbar/show-message
-                            (gstring/format "Ownership of %s was transferred" name)]]}]
-       [:ens/set-owner {:ens.record/name name
-                        :ens.record/owner owner}])}))
+    {:dispatch-n
+      [[:ens/set-owner {:ens.record/name name
+                        :ens.record/owner owner}]
+       (if (top-level-name? name)
+         [:name-bazaar-registrar/transfer {:ens.record/label (name-label name)
+                                           :ens.record/owner owner}
+          {:result-href (path-for :route.offerings/detail {:offering/address owner})
+           :on-tx-receipt-n [[:offerings.ownership/load [owner]]
+                             [:district0x.snackbar/show-message
+                              (gstring/format "Ownership of %s was transferred" name)]]}])]}))
 
 (reg-event-fx
   :offerings.total-count/loaded

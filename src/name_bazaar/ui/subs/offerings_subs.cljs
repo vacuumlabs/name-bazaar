@@ -142,15 +142,10 @@
      (subscribe [:offering/ens-record offering-address])
      (subscribe [:offering/registrar-registration offering-address])])
   (fn [[{:keys [:offering/top-level-name?]} ens-record registrar-registration] [_ offering-address]]
-    (when (and (:ens.record/owner ens-record)
-               (if top-level-name?
-                 (:name-bazaar-registrar.registration/owner registrar-registration)
-                 true))
-      (= offering-address
-         (:ens.record/owner ens-record)
-         (if top-level-name?
-           (:name-bazaar-registrar.registration/owner registrar-registration)
-           offering-address)))))
+    (let [node-owner (if top-level-name?
+                       (:name-bazaar-registrar.registration/owner registrar-registration)
+                       (:ens.record/owner ens-record))]
+      (and node-owner (= offering-address node-owner)))))
 
 (reg-sub
   :offering/missing-ownership?

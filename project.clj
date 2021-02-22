@@ -114,16 +114,13 @@
                        [ws "2.3.1"]
                        [xhr2 "0.1.4"]]
         :devDependencies [[ethlint "1.2.5"]
-                          [karma "1.5.0"]
-                          [karma-chrome-launcher "2.0.0"]
-                          [karma-cli "1.0.1"]
-                          [karma-cljs-test "0.1.0"]
-                          [karma-safari-launcher "1.0.0"]]
+                          [cypress "6.4.0"]
+                          ["@testing-library/cypress" "7.0.3"]]
         :package {:scripts {:ethlint "./node_modules/ethlint/bin/solium.js --dir resources/public/contracts/src/"
                             :ethlint-fix"./node_modules/ethlint/bin/solium.js --dir resources/public/contracts/src/ --fix"
+                            :cypress-open " ./node_modules/cypress/bin/cypress open"
+                            :cypress-run " ./node_modules/cypress/bin/cypress run"
                             }}}
-
-  :doo {:paths {:karma "./node_modules/karma/bin/karma"}}
 
   :min-lein-version "2.5.3"
 
@@ -132,8 +129,7 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled"
                                     "target"
                                     "dev-server"
-                                    "server-tests"
-                                    "browser-tests"]
+                                    "server-tests"]
 
   :figwheel {:server-port 4544
              :css-dirs ["resources/public/css"]
@@ -221,12 +217,5 @@
                                    :target :nodejs,
                                    :optimizations :none,
                                    :verbose false
-                                   :source-map true}}
+                                   :source-map true}}]})
 
-                       ;; Testing on client-side
-                       {:id "browser-tests"
-                        :source-paths ["src" "test"]
-                        :compiler {:output-to "browser-tests/browser-tests.js",
-                                   :output-dir "browser-tests",
-                                   :main browser.run-tests
-                                   :optimizations :none}}]})

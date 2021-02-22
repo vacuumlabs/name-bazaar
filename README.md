@@ -139,12 +139,13 @@ node server-tests/server-tests.js
 
 ## Frontend (browser) tests:
 
+To run browser tests use the following command:
 ```
-lein doo chrome browser-tests
+lein npm run cypress-open
 ```
 
-It will autobuild browser-test and re-run the tests as the watched files change.
-More info: [https://github.com/bensu/doo](doo).
+Tests connect to a running app on `http://localhost:4541`. It is recommended to run the
+tests with clear ganache network, otherwise the tests will be slower or fail.
 
 ## Development env through nginx:
 
@@ -176,4 +177,4 @@ node server/name-bazaar.js
 The purpose of linting and formatting is such that the code is readable and consistent.
 
 We use [ethlint](https://github.com/duaraghav8/Ethlint) for linting solidity files. You
-can use `lein npm ethlint` and `lein npm ethlint-fix` to run the linter.
+can use `lein npm run ethlint` and `lein npm run ethlint-fix` to run the linter.

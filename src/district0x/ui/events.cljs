@@ -39,6 +39,7 @@
     [print.foo :include-macros true]
     [print.foo :refer [look]]
     [re-frame.core :as re-frame :refer [reg-event-db reg-event-fx inject-cofx path trim-v after debug reg-fx console dispatch reg-cofx]]
+    [re-promise.core]
     [taoensso.timbre :as log]
     ))
 
@@ -80,7 +81,7 @@
    :on-failure on-failure})
 
 
-(defn initialize-web3-instance
+(defn create-web3-instance
   "Either re-uses a provided web3 provider, or creates a Web3 instance
   for the re-frame `db`.
 
@@ -91,6 +92,13 @@
       (new (aget js/window "Web3") (web3/current-provider (aget js/window "web3")))
       (web3/create-web3 (:node-url db)))))
 
+(defn create-wallet-connect-web3
+  "TODO"
+  [db]
+  (try-catch
+    (if (d0x-ui-utils/provides-web3?)
+      (js/Promise.resolve (new (aget js/window "Web3") (web3/current-provider (aget js/window "web3"))))
+      (js/Promise.resolve (web3/create-web3 (:node-url db))))))
 
 (defn initialize-db
   "Update re-frame `db` with `localstorage` and `current-url` co-effects.
@@ -104,11 +112,10 @@
       (update :active-page merge
               {:query-params (medley/map-keys keyword (:query current-url))
                :path (:path current-url)})
-      (as-> db (assoc db :web3 (initialize-web3-instance db)))
+      (as-> db (assoc db :web3 (create-web3-instance db)))
       (update-in [:transaction-log :settings] merge
                  {:open? false
                   :highlighted-transaction nil})))
-
 
 (defn- contains-tx-status? [tx-statuses {:keys [:status]}]
   (contains? tx-statuses status))
@@ -133,7 +140,14 @@
   :district0x/setup-web3
   [trim-v]
   (fn [{:keys [db]} _]
-    {:db (assoc db :web3 (initialize-web3-instance db))
+    {:promise {:call #(create-wallet-connect-web3 db)
+               :on-success [:district0x/wallet-connect-web3-created]}}))
+
+(reg-event-fx
+  :district0x/wallet-connect-web3-created
+  [trim-v]
+  (fn [{:keys [db]} [web3]]
+    {:db (assoc db :web3 web3)
      :dispatch-later
      [{:ms 0 :dispatch [::logging/info "Initialized web3 instance" :district0x/setup-web3]}
       {:ms 0 :dispatch [:district0x/load-my-addresses]}
@@ -143,7 +157,7 @@
   :district0x/initialize
   [interceptors (inject-cofx :localstorage) (inject-cofx :current-url)]
   (fn [{:keys [:localstorage :current-url]} [{:keys [:default-db :conversion-rates :effects] :as init-options}]]
-    (let [db (district0x.ui.events/initialize-db default-db localstorage current-url)
+    (let [db (initialize-db default-db localstorage current-url)
           transactions (get-in db [:transaction-log :transactions])
           txs-to-reload (medley/filter-vals #(contains-tx-status? #{:tx.status/not-loaded :tx.status/pending} %)
                                             transactions)]

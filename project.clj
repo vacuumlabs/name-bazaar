@@ -22,6 +22,7 @@
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [print-foo-cljs "2.0.3"]
                  [re-frame "0.10.6"]
+                 [re-promise "0.1.1"]
                  [ring/ring-defaults "0.3.2"]
                  ;; Can be removed when re-frame vbump includes reagent 8.0.1+
                  [reagent "0.8.1"]
@@ -95,6 +96,7 @@
                        ["@ensdomains/ethregistrar" "2.0.4"]
                        ["@ensdomains/resolver" "0.2.4"]
                        ["@sentry/node" "4.2.1"]
+                       ["@walletconnect/web3-provider" "1.3.6"]
                        ;; https://github.com/district0x/district-server-db/blob/3839edd/project.clj#L12
                        ;; After deployment changes, (transitive) dependencies are not installed automatically
                        ;; TODO: remove, they should be installed automatically
@@ -111,6 +113,7 @@
                        [eth-ens-namehash "2.0.0"]
                        [semantic-ui "2.4.1"]
                        [source-map-support "0.4.0"]
+                       [web3modal "1.9.3"]
                        [ws "2.3.1"]
                        [xhr2 "0.1.4"]]
         :devDependencies [["@testing-library/cypress" "7.0.3"]

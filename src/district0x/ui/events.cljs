@@ -87,18 +87,32 @@
 
   Returns the web3 instance to be included in the db side-effect"
   [db]
-  (try-catch
-    (if (d0x-ui-utils/provides-web3?)
-      (new (aget js/window "Web3") (web3/current-provider (aget js/window "web3")))
-      (web3/create-web3 (:node-url db)))))
+  (try-catch (web3/create-web3 (:node-url db))))
+
+(def log (.-log js/console))
 
 (defn create-wallet-connect-web3
-  "TODO"
-  [db]
-  (try-catch
-    (if (d0x-ui-utils/provides-web3?)
-      (js/Promise.resolve (new (aget js/window "Web3") (web3/current-provider (aget js/window "web3"))))
-      (js/Promise.resolve (web3/create-web3 (:node-url db))))))
+  "Initiate web3 modal popup and allow user to choose a way how to
+  connect to Namebazaar.
+
+  The result of the web3 modal will be web3 provider which can be
+  used to create new web3 instance (which is later saved into DB)"
+  []
+  ;; https://lwhorton.github.io/2018/10/20/clojurescript-interop-with-javascript.html
+  (let [web3-modal-class (.. js/window -Web3Modal -default)
+        wallet-connect-provider (.. js/window -WalletConnectProvider -default)
+        ;; Using https://github.com/Web3Modal/web3modal-vanilla-js-example/blob/master/example.js#L52
+        ;; TODO: create own infuraId https://ethereumico.io/knowledge-base/infura-api-key-guide/
+        provider-options (clj->js {:walletconnect {:package wallet-connect-provider :options {:infuraId "8043bb2cf99347b1bfadfb233c5325c0"}}})
+        web3-modal-options (clj->js {:cacheProvider false :providerOptions provider-options :disableInjectedProvider false})
+        web3-modal (new web3-modal-class web3-modal-options)]
+    ;; uncomment and web3-modal will be available as window.abc
+    ;; TODO: remove
+    ;; (set! (.. js/window -abc) web3-modal)
+    (->
+      (js-invoke web3-modal "connect")
+      (.then (fn [provider] (set! (.. js/window -prov) provider) (new (aget js/window "Web3") provider)))
+      (.catch (fn [err] (log/error "Unable to retrieve web3 provider. Reason:" err))))))
 
 (defn initialize-db
   "Update re-frame `db` with `localstorage` and `current-url` co-effects.
@@ -120,27 +134,14 @@
 (defn- contains-tx-status? [tx-statuses {:keys [:status]}]
   (contains? tx-statuses status))
 
-
-;; Initial Web3 Provider Allow/Deny functionality prompt (EIP-1102)
-(reg-event-fx
-  :district0x/initialize-web3
-  [trim-v]
-  (fn [_ [init-options]]
-    {::web3-fx.ethereum/authorize-ethereum-provider
-     {:on-accept [:district0x/setup-web3]
-      :on-reject [:district0x/setup-web3]
-      :on-error [:district0x/setup-web3]
-      :on-legacy [:district0x/setup-web3]}}))
-
-
 ;; Setup Web3 Provider after EIP-1102 prompt
 ;; - refresh db web3 instance.
 ;; - refresh web3 addresses and polling events
 (reg-event-fx
   :district0x/setup-web3
   [trim-v]
-  (fn [{:keys [db]} _]
-    {:promise {:call #(create-wallet-connect-web3 db)
+  (fn [_ _]
+    {:promise {:call #(create-wallet-connect-web3)
                :on-success [:district0x/wallet-connect-web3-created]}}))
 
 (reg-event-fx
@@ -180,7 +181,7 @@
                                            :transaction-hash tx-hash
                                            :on-tx-receipt [:district0x/on-tx-receipt {}]}])))
          ;; In some cases web3 injection may not yet happened, so we'll give it some time, just in case
-         :dispatch-later [{:ms 1000 :dispatch [:district0x/initialize-web3 init-options]}]}
+         :dispatch-later [{:ms 1000 :dispatch [:district0x/setup-web3]}]}
         (when conversion-rates
           {:district0x/dispatch [:district0x/load-conversion-rates (:currencies conversion-rates)]
            :dispatch-interval {:dispatch [:district0x/load-conversion-rates (:currencies conversion-rates)]
@@ -215,20 +216,16 @@
   :district0x/load-my-addresses
   interceptors
   (fn [{:keys [db]}]
-    (let [new-db (if (d0x-ui-utils/provides-web3?)
-                   (assoc db :web3 (new (aget js/window "Web3") (web3/current-provider (aget js/window "web3"))))
-                   db)]
       (merge
-        {:db new-db}
-        (if (or (:load-node-addresses? db)
-                (d0x-ui-utils/provides-web3?))
+        {:db db}
+        (if (:load-node-addresses? db)
           {:web3-fx.blockchain/fns
-           {:web3 (:web3 new-db)
+           {:web3 (:web3 db)
             :fns [{:f web3-eth/accounts
                    :on-success [:district0x/my-addresses-loaded]
                    :on-error [:district0x/dispatch-n [[::logging/info "No addresses could be loaded" :district0x/load-my-addresses]
                                                       [:district0x/my-addresses-loaded []]]]}]}}
-          {:dispatch [:district0x/my-addresses-loaded []]})))))
+          {:dispatch [:district0x/my-addresses-loaded []]}))))
 
 (reg-event-fx
   :district.server.config/load

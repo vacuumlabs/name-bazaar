@@ -172,24 +172,32 @@ lein build-prod
 node server/name-bazaar.js
 ```
 
-## Deploy
+## Testnet deploy
 
-To run server in docker container do something like
+To run server in docker container use image `district0x/namebazaar-server`, e.g.:
 
 ```bash
 docker run --name=namebazaar-server \
     --net=host \
     -v /path/to/config.edn:/configs/namebazaar.config.edn \
-    district0x/namebazaar-server:latest
+    district0x/namebazaar-server:qa
 ```
 
-For UI use the `district0x/namebazaar-ui` image instead.
+You can choose between tags `dev`, `qa` and `prod`.  As for the config file, you can find an example in `docker-builds/server/config.example.edn`. Of particular interest is providing correct addresses of smart contracts on the blockchain you'll link the app to.
 
-You can find example for `config.edn` file in `docker-builds/config.example.edn`. Of particular interest is providing correct addresses of smart contracts on the blockchain you'll link the app to.
+For UI use the `district0x/namebazaar-ui` image:
 
-### Updating the docker images
+```bash
+docker run --name=namebazaar-ui \
+    --net=host \
+    district0x/namebazaar-ui:qa
+```
 
-If you want to build new docker images, and push them to district0x dockerhub (if authorised), run:
+Note that there is no passing of config file for UI: currently for any change of UI config you need to build a new image (see the next section). The hardcoded configuration is at `src/name_bazaar/ui/config.cljs`.
+
+### Updating docker images
+
+If you want to build new docker images locally and push them to district0x dockerhub (if you're authorised to do so), run:
 
 ```bash
 ./docker-push.sh env sshkey
@@ -197,12 +205,33 @@ If you want to build new docker images, and push them to district0x dockerhub (i
 
 where
 
-* `env` is `qa` or `prod` (the only difference is in how the images will be tagged)
+* `env` is `dev`,`qa` or `prod` (the only difference is in how the images will be tagged)
 * `sshkey` is path to your private github ssh key, which will be used to download dependencies in a secure manner, not persisting in any build layer
 
 ### Deploying Name Bazaar smart contracts
 
-TODO
+After you have built the contracts with `lein compile-solidity`, provide correct `config.edn` file in project root. An example file can be found in `docker-builds/deployer-config.example.edn`. When choosing `:web3` note that you can't use e.g. Infura currently, because the node needs to be able to sign your transactions. So you need to use e.g. a local geth node.
+
+Now start the figwheel console over dev build:
+
+```bash
+lein repl
+(start-server!)
+```
+
+and
+
+```bash
+node dev-server/name-bazaar.js
+```
+
+in a separate terminal. In figwheel repl
+
+```bash
+(deploy-contracts)
+```
+
+and don't forget to store the addresses in case of success.
 
 ## Linting and formatting smart contracts
 

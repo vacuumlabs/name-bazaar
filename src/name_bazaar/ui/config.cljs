@@ -1,6 +1,10 @@
 (ns name-bazaar.ui.config)
 
-(goog-define environment "prod")
+;; TODO currently this is configuration in source code
+;; you need to rebuild UI for each new configuration
+;; (e.g. change this file then build new docker UI image)
+;; we should make UI configurable on the fly
+(goog-define environment "qa")
 
 (def development-config
   {:debug? true
@@ -9,6 +13,15 @@
    :pushroute-hosts "localhost"
    :node-url "http://localhost:8549"
    :load-node-addresses? true
+   :root-url "http://0.0.0.0:4544"
+   :server-url "http://localhost:6200"})
+
+(def qa-config
+  {:logging {:level :debug
+             :console? true}
+   :pushroute-hosts "localhost"
+   :node-url "https://ropsten.infura.io/v3/874e0519ba33487f89ef854b0179906c"
+   :load-node-addresses? false
    :root-url "http://0.0.0.0:4544"
    :server-url "http://localhost:6200"})
 
@@ -24,4 +37,5 @@
 (def config
   (condp = environment
     "prod" production-config
-    "dev" development-config))
+    "dev" development-config
+    "qa" qa-config))

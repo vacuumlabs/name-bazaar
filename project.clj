@@ -116,6 +116,7 @@
         :devDependencies [["@testing-library/cypress" "7.0.3"]
                           [ethlint "1.2.5"]
                           [cypress "6.4.0"]
+                          [jsedn "0.4.1"]
                           [truffle "5.2.3"]]
         :package {:scripts {:ethlint "./node_modules/ethlint/bin/solium.js --dir resources/public/contracts/src/"
                             :ethlint-fix"./node_modules/ethlint/bin/solium.js --dir resources/public/contracts/src/ --fix"

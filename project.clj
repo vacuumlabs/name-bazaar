@@ -114,6 +114,7 @@
                        [ws "2.3.1"]
                        [xhr2 "0.1.4"]]
         :devDependencies [["@testing-library/cypress" "7.0.3"]
+                          ["@truffle/hdwallet-provider" "1.2.2"]
                           [ethlint "1.2.5"]
                           [cypress "6.4.0"]
                           [jsedn "0.4.1"]

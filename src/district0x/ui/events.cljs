@@ -103,7 +103,7 @@
         wallet-connect-provider (.. js/window -WalletConnectProvider -default)
         ;; Using https://github.com/Web3Modal/web3modal-vanilla-js-example/blob/master/example.js#L52
         ;; TODO: create own infuraId https://ethereumico.io/knowledge-base/infura-api-key-guide/
-        provider-options (clj->js {:walletconnect {:package wallet-connect-provider :options {:infuraId "8043bb2cf99347b1bfadfb233c5325c0"}}})
+        provider-options (clj->js {:walletconnect {:package wallet-connect-provider :options {:infuraId "0ff2cb560e864d078290597a29e2505d"}}})
         web3-modal-options (clj->js {:cacheProvider false :providerOptions provider-options :disableInjectedProvider false})
         web3-modal (new web3-modal-class web3-modal-options)]
     ;; uncomment and web3-modal will be available as window.abc

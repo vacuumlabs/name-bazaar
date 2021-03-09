@@ -86,7 +86,7 @@
                                       :console? true}
                             :endpoints {:port 6200
                                         :middlewares [logging-middlewares]}
-                            :web3 {:port 8549}
+                            :web3 {:url "https://ropsten.infura.io/v3/0ff2cb560e864d078290597a29e2505d"}
                             :db {:opts {:memory true}}
                             :emailer {:print-mode? true
                                       :private-key "25677d268904ea651f84e37cfd580696c5c793dcd9730c415bf03b96003c09e9ef8"}

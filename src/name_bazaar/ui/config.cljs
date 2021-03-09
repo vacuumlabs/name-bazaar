@@ -11,7 +11,7 @@
    :logging {:level :debug
              :console? true}
    :pushroute-hosts "localhost"
-   :node-url "http://localhost:8549"
+   :node-url "https://ropsten.infura.io/v3/0ff2cb560e864d078290597a29e2505d"
    :load-node-addresses? true
    :root-url "http://0.0.0.0:4544"
    :server-url "http://localhost:6200"})

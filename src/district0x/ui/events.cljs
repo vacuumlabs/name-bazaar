@@ -148,6 +148,7 @@
   :district0x/wallet-connect-web3-created
   [trim-v]
   (fn [{:keys [db]} [web3]]
+    (set! (.. js/window -web) web3)
     {:db (assoc db :web3 web3)
      :dispatch-later
      [{:ms 0 :dispatch [::logging/info "Initialized web3 instance" :district0x/setup-web3]}
@@ -295,7 +296,8 @@
   :district0x/my-addresses-loaded
   [interceptors (inject-cofx :localstorage)]
   (fn [{:keys [db localstorage]} [addresses]]
-    (let [active-address (if (contains? (set addresses) (:active-address localstorage))
+    (let [addresses (map #(string/lower-case %) addresses)
+          active-address (if (contains? (set addresses) (:active-address localstorage))
                            (:active-address localstorage)
                            (first addresses))]
       (merge

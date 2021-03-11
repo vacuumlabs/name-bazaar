@@ -89,12 +89,11 @@
   [db]
   (try-catch (web3/create-web3 (:node-url db))))
 
-(def log (.-log js/console))
-
 (defn create-wallet-connect-web3
   "Initiate web3 modal popup and allow user to choose a way how to
   connect to Namebazaar.
 
+  TODO: rewrite
   The result of the web3 modal will be web3 provider which can be
   used to create new web3 instance (which is later saved into DB)"
   []

@@ -96,7 +96,6 @@
                        ["@ensdomains/ethregistrar" "2.0.4"]
                        ["@ensdomains/resolver" "0.2.4"]
                        ["@sentry/node" "4.2.1"]
-                       ["@walletconnect/web3-provider" "1.3.6"]
                        ;; https://github.com/district0x/district-server-db/blob/3839edd/project.clj#L12
                        ;; After deployment changes, (transitive) dependencies are not installed automatically
                        ;; TODO: remove, they should be installed automatically
@@ -113,7 +112,6 @@
                        [eth-ens-namehash "2.0.0"]
                        [semantic-ui "2.4.1"]
                        [source-map-support "0.4.0"]
-                       [web3modal "1.9.3"]
                        [ws "2.3.1"]
                        [xhr2 "0.1.4"]]
         :devDependencies [["@testing-library/cypress" "7.0.3"]

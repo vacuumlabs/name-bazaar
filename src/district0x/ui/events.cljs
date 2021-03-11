@@ -80,44 +80,33 @@
    :on-success on-success
    :on-failure on-failure})
 
-
-(defn create-web3-instance
-  "Either re-uses a provided web3 provider, or creates a Web3 instance
-  for the re-frame `db`.
-
-  Returns the web3 instance to be included in the db side-effect"
-  [db]
-  (try-catch (web3/create-web3 (:node-url db))))
-
 (defn create-wallet-connect-web3
   "Initiate web3 modal popup and allow user to choose a way how to
   connect to Namebazaar.
 
-  TODO: rewrite
-  The result of the web3 modal will be web3 provider which can be
-  used to create new web3 instance (which is later saved into DB)"
+  The result of the web3 modal will be web3 provider which is used
+  to create new web3 instance (which is later saved into DB). This
+  handling is asynchronous and the function returns a promise."
   []
+  ;; Clear the wallet connect local storage, which persists previous connection
+  ;; I've found the persisted connect to be extremely unreliable (transactions didn't work)
+  (.removeItem (.-localStorage js/window) "walletconnect")
   ;; https://lwhorton.github.io/2018/10/20/clojurescript-interop-with-javascript.html
   (let [web3-modal-class (.. js/window -Web3Modal -default)
         wallet-connect-provider (.. js/window -WalletConnectProvider -default)
         ;; Using https://github.com/Web3Modal/web3modal-vanilla-js-example/blob/master/example.js#L52
-        ;; TODO: create own infuraId https://ethereumico.io/knowledge-base/infura-api-key-guide/
         provider-options (clj->js {:walletconnect {:package wallet-connect-provider :options {:infuraId "0ff2cb560e864d078290597a29e2505d"}}})
         web3-modal-options (clj->js {:cacheProvider false :providerOptions provider-options :disableInjectedProvider false})
         web3-modal (new web3-modal-class web3-modal-options)]
-    ;; uncomment and web3-modal will be available as window.abc
-    ;; TODO: remove
-    ;; (set! (.. js/window -abc) web3-modal)
     (->
       (js-invoke web3-modal "connect")
-      (.then (fn [provider] (set! (.. js/window -prov) provider) (new (aget js/window "Web3") provider)))
+      (.then (fn [provider] (new (aget js/window "Web3") provider)))
       (.catch (fn [err] (log/error "Unable to retrieve web3 provider. Reason:" err))))))
 
 (defn initialize-db
   "Update re-frame `db` with `localstorage` and `current-url` co-effects.
 
   Notes:
-
   - Returned `db` is used as a `:db` side-effect."
   [db localstorage current-url]
   (-> db
@@ -125,7 +114,6 @@
       (update :active-page merge
               {:query-params (medley/map-keys keyword (:query current-url))
                :path (:path current-url)})
-      (as-> db (assoc db :web3 (create-web3-instance db)))
       (update-in [:transaction-log :settings] merge
                  {:open? false
                   :highlighted-transaction nil})))
@@ -147,7 +135,6 @@
   :district0x/wallet-connect-web3-created
   [trim-v]
   (fn [{:keys [db]} [web3]]
-    (set! (.. js/window -web) web3)
     {:db (assoc db :web3 web3)
      :dispatch-later
      [{:ms 0 :dispatch [::logging/info "Initialized web3 instance" :district0x/setup-web3]}
@@ -155,10 +142,10 @@
       {:ms 0 :dispatch [:district0x/setup-address-reload-interval]}]}))
 
 (reg-event-fx
-  :district0x/initialize
-  [interceptors (inject-cofx :localstorage) (inject-cofx :current-url)]
-  (fn [{:keys [:localstorage :current-url]} [{:keys [:default-db :conversion-rates :effects] :as init-options}]]
-    (let [db (initialize-db default-db localstorage current-url)
+  :district0x/db-and-web3-initialized
+  [trim-v]
+  (fn [{:keys [db]} [conversion-rates effects web3]]
+    (let [db (assoc db :web3 web3)
           transactions (get-in db [:transaction-log :transactions])
           txs-to-reload (medley/filter-vals #(contains-tx-status? #{:tx.status/not-loaded :tx.status/pending} %)
                                             transactions)]
@@ -180,15 +167,25 @@
                                            :db-path [:contract/state-fns]
                                            :transaction-hash tx-hash
                                            :on-tx-receipt [:district0x/on-tx-receipt {}]}])))
-         ;; In some cases web3 injection may not yet happened, so we'll give it some time, just in case
-         :dispatch-later [{:ms 1000 :dispatch [:district0x/setup-web3]}]}
+         :dispatch-later [{:ms 0 :dispatch [::logging/info "Initialized web3 instance" :district0x/setup-web3]}
+                          {:ms 0 :dispatch [:district0x/load-my-addresses]}
+                          {:ms 0 :dispatch [:district0x/setup-address-reload-interval]}]}
         (when conversion-rates
           {:district0x/dispatch [:district0x/load-conversion-rates (:currencies conversion-rates)]
            :dispatch-interval {:dispatch [:district0x/load-conversion-rates (:currencies conversion-rates)]
                                :ms (or (:ms conversion-rates) 60000)
                                :db-path [:district0x/load-conversion-rates-interval]}})
 
-        effects))))
+        effects))
+    ))
+
+(reg-event-fx
+  :district0x/initialize
+  [interceptors (inject-cofx :localstorage) (inject-cofx :current-url)]
+  (fn [{:keys [:localstorage :current-url]} [{:keys [:default-db :conversion-rates :effects]}]]
+    {:db (initialize-db default-db localstorage current-url)
+     :promise {:call #(create-wallet-connect-web3)
+               :on-success [:district0x/db-and-web3-initialized conversion-rates effects]}}))
 
 (reg-event-fx
   :district0x/set-current-location-as-active-page
@@ -217,7 +214,6 @@
   interceptors
   (fn [{:keys [db]}]
       (merge
-        {:db db}
         (if (:load-node-addresses? db)
           {:web3-fx.blockchain/fns
            {:web3 (:web3 db)
@@ -356,18 +352,6 @@
         :on-error [:district0x/blockchain-connection-error :district0x/watch-eth-balances]}})))
 
 (reg-event-fx
-  :district0x/load-eth-balances
-  interceptors
-  (fn [{:keys [db]} [{:keys [:addresses :on-address-balance-loaded]
-                      :or {on-address-balance-loaded [:district0x/address-balance-loaded :eth]}}]]
-    (when (seq addresses)
-      {:web3-fx.blockchain/balances
-       {:web3 (:web3 db)
-        :addresses addresses
-        :on-success on-address-balance-loaded
-        :on-error [:district0x/blockchain-connection-error :district0x/watch-token-balances]}})))
-
-(reg-event-fx
   :district0x/watch-my-eth-balances
   interceptors
   (fn [{:keys [db]} [args]]
@@ -413,7 +397,7 @@
 (reg-event-fx
   :district0x/address-balance-loaded
   interceptors
-  (fn [{:keys [db]} [token balance address :as a]]
+  (fn [{:keys [db]} [token balance address]]
     {:db (assoc-in db [:balances address token] (d0x-shared-utils/big-num->ether balance))}))
 
 (reg-event-fx

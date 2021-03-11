@@ -11,6 +11,7 @@
    :logging {:level :debug
              :console? true}
    :pushroute-hosts "localhost"
+   ;; TODO: get rid of this
    :node-url "https://ropsten.infura.io/v3/0ff2cb560e864d078290597a29e2505d"
    :load-node-addresses? true
    :root-url "http://0.0.0.0:4544"

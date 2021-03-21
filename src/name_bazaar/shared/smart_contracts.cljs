@@ -1,3 +1,44 @@
 (ns name-bazaar.shared.smart-contracts)
-    (def smart-contracts
-      {:ens {:name "ENSRegistry" :address "0xCa72fD24B31526BC516cFa95d4160DBf35A90f9a"} :name-bazaar-registrar {:name "NameBazaarRegistrar" :address "0x2A0573677fe700dacAa2C83D17A55905620E0004"} :offering-registry {:name "OfferingRegistry" :address "0x8eD5096E70BF42858955869B4F48772E6568FcF1"} :offering-requests {:name "OfferingRequests" :address "0x2847d8016F5e07D60ccC9565B32AA0923F93aA12"} :buy-now-offering {:name "BuyNowOffering" :address "0xCc6B7b54646CE0e957cCaFB6cbb2d09008Fa84b1"} :buy-now-offering-factory {:name "BuyNowOfferingFactory" :address "0xb6087A633161D7eB0f382bCA4beCb51De74bB218"} :auction-offering {:name "AuctionOffering" :address "0xc1bAF2c6c45581c94C03dDcC33f7EdD5fd21c5dF"} :auction-offering-factory {:name "AuctionOfferingFactory" :address "0xAd95F4FD105637bcc6C0c302c3461Bd03B9625f6"} :district0x-emails {:name "District0xEmails" :address "0x48Dd8c10a7f3503C83722410600Bb03420a31167"} :reverse-name-resolver {:name "NamebazaarDevNameResolver" :address "0x735B026fF4f8089b458d52E86D59cd6f39dC6E85"} :public-resolver {:name "NamebazaarDevPublicResolver" :address "0xbe995B7e9b6b7Aa5063515Ae3EDAd64d5A22225E"} :reverse-registrar {:name "NamebazaarDevReverseResolver" :address "0x636F8bE2a400040d6ebFFA1CC77810F174c5Ce5D"}})
+  (def smart-contracts
+   {:auction-offering-factory
+    {:name "AuctionOfferingFactory",
+     :address "0x959113e1c88d7e866e168ded02bf5cf8aaba2e0f"},
+    :buy-now-offering-factory
+    {:name "BuyNowOfferingFactory",
+     :address "0xcaf0523f1ca2985b5cbba8a42a8cc413ff7512d0"},
+    :name-bazaar-registrar
+    {:name "NameBazaarRegistrar",
+     ;; Ropsten BaseRegistrarImplementation
+     ;; https://ropsten.etherscan.io/address/0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85
+     :address "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85"},
+    :buy-now-offering
+    {:name "BuyNowOffering",
+     :address "0x57001d4d427b9c862544b56b84a5520db10206b0"},
+    :reverse-registrar
+    {:name "ReverseRegistrar",
+     ;; Ropsten ReverseRegistrar
+     ;; https://ropsten.etherscan.io/address/0x6F628b68b30Dc3c17f345c9dbBb1E483c2b7aE5c
+     :address "0x6F628b68b30Dc3c17f345c9dbBb1E483c2b7aE5c"},
+    :public-resolver
+    {:name "PublicResolver",
+     ;; Ropsten PublicResolver
+     ;; https://ropsten.etherscan.io/address/0x42d63ae25990889e35f215bc95884039ba354115
+     :address "0x42D63ae25990889E35F215bC95884039Ba354115"},
+    :ens
+    {:name "ENSRegistry",
+     ;; Ropsten ENSRegistry
+     ;; https://docs.ens.domains/ens-deployments
+     ;; https://ropsten.etherscan.io/address/0x00000000000c2e074ec69a0dfb2997ba6c7d2e1e
+     :address "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"},
+    :offering-registry
+    {:name "OfferingRegistry",
+     :address "0x501fa189c6ed1789cf6be5728c5e4b0a94d0c4b2"},
+    :district0x-emails
+    {:name "District0xEmails",
+     :address "0x1383405e11d179581ae3128c0c1698be29e40565"},
+    :offering-requests
+    {:name "OfferingRequests",
+     :address "0x80afaa1b9a5717731d0d874c37e2b535dc1502a9"},
+    :auction-offering
+    {:name "AuctionOffering",
+     :address "0x0fc5ae5770a8188e1dcf46777020c186884d44dc"}})

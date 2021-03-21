@@ -2,7 +2,8 @@
 
 #--- ARGS
 
-BUILD_ENV=$1
+BUILD_ENV=$1  # dev / qa / prod
+GITHUB=$2  # your github ssh private key filepath to download git+ssh deps
 
 #--- FUNCTIONS
 
@@ -19,27 +20,17 @@ function build {
     echo  "["$BUILD_ENV"] ["$SERVICE"] Buidling: "$IMG""
     echo "============================================="
 
-    # case $SERVICE in
-    #   "ui")
-    #     lein compile-solidity
-    #     lein cljsbuild once "min"
-    #     ;;
-    #   "server")
-    #     lein cljsbuild once "server"
-    #     ;;
-    #   *)
-    #     echo "ERROR: don't know what to do with SERVICE: "$SERVICE""
-    #     exit 1
-    #     ;;
-    # esac
-
-    docker build -t $IMG -f docker-builds/$SERVICE/Dockerfile .
+    DOCKER_BUILDKIT=1 docker build -t $IMG -f docker-builds/$SERVICE/Dockerfile . --ssh github=$GITHUB
 
     case $BUILD_ENV in
-      # "qa")
-      #   # qa images are tagged as `latest`
-      #   docker tag $IMG $NAME:latest
-      #   ;;
+      "dev")
+        # dev images are tagged as `dev`
+        docker tag $IMG $NAME:dev
+        ;;
+      "qa")
+        # qa images are tagged as `latest`
+        docker tag $IMG $NAME:latest
+        ;;
       "prod")
         # prod images are tagged as `release`
         docker tag $IMG $NAME:release
@@ -66,19 +57,12 @@ function login {
   echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 }
 
-function before {
-  lein deps
-  lein npm install
-  lein compile-solidity
-}
-
 #--- EXECUTE
 
-# before
 login
 
 images=(
-#  district0x/namebazaar-server
+  district0x/namebazaar-server
   district0x/namebazaar-ui
 )
 

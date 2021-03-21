@@ -56,6 +56,20 @@
                          #'district.server.web3/web3
                          #'district.server.smart-contracts/smart-contracts))
 
+(defn deploy-contracts []
+  "Deploy smart contracts anywhere, specified by provided config.edn."
+  (mount/stop #'district.server.web3/web3
+              #'district.server.smart-contracts/smart-contracts
+              #'name-bazaar.server.deployer/deployer)
+  (mount/start-with-args (merge (mount/args)
+                                ;; TODO this would ideally be in config.edn too, but it causes an error - fix
+                                {:smart-contracts {:contracts-var    #'name-bazaar.shared.smart-contracts/smart-contracts
+                                                   :print-gas-usage? true
+                                                   :auto-mining?     false}})
+                         #'district.server.web3/web3
+                         #'district.server.smart-contracts/smart-contracts
+                         #'name-bazaar.server.deployer/deployer))
+
 (defn generate-data
   "Generate dev data"
   []
@@ -72,7 +86,7 @@
                                       :console? true}
                             :endpoints {:port 6200
                                         :middlewares [logging-middlewares]}
-                            :web3 {:url "https://ropsten.infura.io/"}
+                            :web3 {:port 8549}
                             :db {:opts {:memory true}}
                             :emailer {:print-mode? true
                                       :private-key "25677d268904ea651f84e37cfd580696c5c793dcd9730c415bf03b96003c09e9ef8"}

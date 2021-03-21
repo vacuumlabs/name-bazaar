@@ -8,7 +8,7 @@ See at [https://namebazaar.io](https://namebazaar.io)
 
 Smart-contracts can be found [here](https://github.com/district0x/name-bazaar/tree/master/resources/public/contracts/src).
 
-## Starting a dev server with an Ethereum Testnet
+## Starting a dev server
 
 In a terminal, start a ganache blockchain
 
@@ -17,6 +17,8 @@ In a terminal, start a ganache blockchain
 ```
 
 _(note that this uses docker and will try to pull `trufflesuite/ganache-cli:v6.12.1` image if you don't have it)_
+
+_(Alternatively, you can connect directly to one of ethereum testnet networks - e.g. ropsten. In order to do this, specify correct smart contract addresses and `web3` property in the config file. Example config file can be found in `docker-builds/deployer-config.example.edn`)_
 
 Open another terminal, start autocompiling smart-contracts
 
@@ -175,6 +177,71 @@ lein build-prod
 # To run prod server
 node server/name-bazaar.js
 ```
+
+## Testnet deploy
+
+To run server in docker container use image `district0x/namebazaar-server`, e.g.:
+
+```bash
+docker run --name=namebazaar-server \
+    --net=host \
+    -v /path/to/config.edn:/configs/namebazaar.config.edn \
+    district0x/namebazaar-server:latest
+```
+
+You can choose between tags `dev`, `latest` (intended for QA deploys) and `release` (intended for production deploy).  As for the config file, you can find an example in `docker-builds/server/config.example.edn`. Of particular interest is providing correct addresses of smart contracts on the blockchain you'll link the app to.
+
+For UI use the `district0x/namebazaar-ui` image:
+
+```bash
+docker run --name=namebazaar-ui \
+    --net=host \
+    district0x/namebazaar-ui:latest
+```
+
+Note that there is no passing of config file for UI: currently for any change of UI config you need to build a new image (see the next section). The hardcoded configuration is at `src/name_bazaar/ui/config.cljs`.
+
+### Updating docker images
+
+If you want to build new docker images locally and push them to district0x dockerhub (if you're authorised to do so), run:
+
+```bash
+./docker-push.sh env sshkey
+```
+
+where
+
+* `env` is `dev`,`qa` or `prod` (the only difference is in how the images will be tagged)
+* `sshkey` is path to your private github ssh key, which will be used to download dependencies in a secure manner, not persisting in any build layer
+
+### Deploying Name Bazaar smart contracts
+
+#### Deployment via ClojureScript deployer
+
+_Currently you need to be using Node 8 and a temporary downgrade of better-sqlite3 to `[better-sqlite3 "4.0.0"]` in `project.clj`!_ This is because the old version of `district-server-smart-contracts` we use (newer versions of this dependency will require a major overhaul that should wipe this issue) depends on `[deasync "0.1.11"]`, which has an issue with Node 9+ (https://github.com/abbr/deasync/issues/89). It's used however only in smart contract deploys with `:auto-mining false`. That means in normal app operation we can use Node 10 and better-sqlite3 5.4.0 (and we do, because using the very old Node 8 for app as a whole causes issues elsewhere).
+
+After you have built the contracts with `lein compile-solidity`, provide correct `config.edn` file in project root. An example file can be found in `docker-builds/deployer-config.example.edn`. When choosing `:web3` note that you can't use Infura currently, because the node needs to be able to sign your transactions. So you need to use your own node.
+
+Now start the figwheel console over dev build:
+
+```bash
+lein repl
+(start-server!)
+```
+
+and
+
+```bash
+node dev-server/name-bazaar.js
+```
+
+in a separate terminal. In figwheel repl
+
+```bash
+(deploy-contracts)
+```
+
+and don't forget to store the addresses in case of success.
 
 ## Linting and formatting smart contracts
 

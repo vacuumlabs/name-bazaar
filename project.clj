@@ -22,6 +22,7 @@
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [print-foo-cljs "2.0.3"]
                  [re-frame "0.10.6"]
+                 [re-promise "0.1.1"]
                  [ring/ring-defaults "0.3.2"]
                  ;; Can be removed when re-frame vbump includes reagent 8.0.1+
                  [reagent "0.8.1"]
@@ -48,7 +49,7 @@
                  ;; an web3 error + db error. However, until 1.0.9 it seems that contract
                  ;; callbacks do not work at all. So there is a bug either way.
                  ;; TODO: update to version 1.0.9
-                 [district0x/district-server-smart-contracts "1.0.8"]
+                 [district0x/district-server-smart-contracts "1.0.1"]
                  ;; TODO: update to newer version. Updating to 1.1.0 breaks the tests
                  [district0x/district-server-web3 "1.0.1"]
                  [district0x/district-server-web3-watcher "1.0.3"]
@@ -83,7 +84,7 @@
 
   :plugins [[lein-auto "0.1.2"]
             [lein-cljsbuild "1.1.7"]
-            [lein-figwheel "0.5.16"]
+            [lein-figwheel "0.5.18"]
             [lein-shell "0.5.0"]
             [lein-doo "0.1.8"]
             [lein-npm "0.6.2"]

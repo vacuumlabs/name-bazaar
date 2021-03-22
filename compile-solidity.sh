@@ -3,7 +3,7 @@
 # This script is used for deployment, because it generates the ABI of the contracts
 # which truffle compile doesn't do. However, the ABI can be extracted from the
 # generated JSON files by truffle with simple script.
-# TODO: migrate deployment to `truffle compile`
+# TODO: migrate compilation to `truffle compile`
 
 ENS=$(readlink -f ./node_modules/@ensdomains)
 OZS=$(readlink -f ./node_modules/openzeppelin-solidity)
